@@ -1,11 +1,16 @@
 {
     "name": "n8n-nodes-stackit-ai-model-serving",
     "version": "0.1.0",
-    "description": "n8n community node to work with the GitHub Issues API",
+    "description": "n8n community nodes for STACKIT AI Model Serving (OpenAI-compatible Chat & Embeddings)",
     "license": "MIT",
     "homepage": "https://www.stackit.de/en/product/stackit-ai-model-serving",
     "keywords": [
-        "n8n-community-node-package"
+        "n8n-community-node-package",
+        "stackit",
+        "ai",
+        "llm",
+        "embeddings",
+        "openai-compatible"
     ],
     "author": {
         "name": "Andreas Klos",
@@ -13,17 +18,17 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/a-klos/n8n-nodes-stackit-ai-model-serving.git"
+        "url": "https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving.git"
     },
-   "scripts": {
-		"build": "n8n-node build",
-		"build:watch": "tsc --watch",
-		"dev": "n8n-node dev",
-		"lint": "n8n-node lint",
+    "scripts": {
+        "build": "n8n-node build",
+        "build:watch": "tsc --watch",
+        "dev": "n8n-node dev",
+        "lint": "n8n-node lint",
         "lint:fix": "n8n-node lint --fix",
-		"release": "n8n-node release",
-		"prepublishOnly": "n8n-node prerelease"
-	},
+        "release": "n8n-node release",
+        "prepublishOnly": "n8n-node prerelease"
+    },
     "files": [
         "dist"
     ],
@@ -33,7 +38,8 @@
             "dist/credentials/StackitAiModelServingApi.credentials.js"
         ],
         "nodes": [
-            "dist/nodes/StackitChatModel/StackitChatModel.node.js"
+            "dist/nodes/StackitChatModel/StackitChatModel.node.js",
+            "dist/nodes/StackitEmbeddings/StackitEmbeddings.node.js"
         ]
     },
     "devDependencies": {
@@ -45,5 +51,8 @@
     },
     "peerDependencies": {
         "n8n-workflow": "*"
+    },
+    "dependencies": {
+        "@langchain/openai": "^0.6.12"
     }
 }

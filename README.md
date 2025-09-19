@@ -1,73 +1,79 @@
-# n8n-nodes-stackit-ai-model-serving
+# STACKIT AI Model Serving nodes for n8n
 
-This is an n8n community node. It lets you use GitHub Issues in your n8n workflows.
+n8n community nodes that connect to STACKIT AI Model Serving’s OpenAI-compatible API. Includes:
+
+- STACKIT Chat Model — Chat-completions compatible LLM node.
+- STACKIT Embeddings — Text embeddings generation node.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-[Installation](#installation)
-[Operations](#operations)
-[Credentials](#credentials)
-[Compatibility](#compatibility)
-[Usage](#usage)
-[Resources](#resources)
+- [Installation](#installation)
+- [Credentials](#credentials)
+- [STACKIT Chat Model](#stackit-chat-model)
+- [STACKIT Embeddings](#stackit-embeddings)
+- [Compatibility](#compatibility)
+- [Resources](#resources)
 
 ## Installation
 
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+Follow the official guide to install community nodes: [n8n Community Nodes Installation](https://docs.n8n.io/integrations/community-nodes/installation/)
 
-## Operations
-
-- Issues
-    - Get an issue
-    - Get many issues in a repository
-    - Create a new issue
-- Issue Comments
-    - Get many issue comments
+Once installed, search for “STACKIT Chat Model” or “STACKIT Embeddings” in the node panel.
 
 ## Credentials
 
-You can use either access token or OAuth2 to use this node.
+These nodes use a single credential: “STACKIT AI Model Serving API”.
 
-### Access token
+What you need:
 
-1. Open your GitHub profile [Settings](https://github.com/settings/profile).
-2. In the left navigation, select [Developer settings](https://github.com/settings/apps).
-3. In the left navigation, under Personal access tokens, select Tokens (classic).
-4. Select Generate new token > Generate new token (classic).
-5. Enter a descriptive name for your token in the Note field, like n8n integration.
-6. Select the Expiration you'd like for the token, or select No expiration.
-7. Select Scopes for your token. For most of the n8n GitHub nodes, add the `repo` scope.
-    - A token without assigned scopes can only access public information.
-8. Select Generate token.
-9. Copy the token.
+- API Key from your STACKIT AI Model Serving project
+- No base URL required in n8n — the nodes are preconfigured to use STACKIT’s OpenAI-compatible endpoint
 
-Refer to [Creating a personal access token (classic)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) for more information. Refer to Scopes for OAuth apps for more information on GitHub scopes.
+Notes:
 
-![Generated Access token in GitHub](https://docs.github.com/assets/cb-17251/mw-1440/images/help/settings/personal-access-tokens.webp)
+- Requests are sent to: <https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1>
+- These nodes are compatible with OpenAI-style models and endpoints provided by STACKIT
 
-### OAuth2
+## STACKIT Chat Model
 
-If you're self-hosting n8n, create a new GitHub [OAuth app](https://docs.github.com/en/apps/oauth-apps):
+Use this node to obtain a ChatCompletions-capable model as an AI Model output for n8n’s AI features or LangChain-based chains.
 
-1. Open your GitHub profile [Settings](https://github.com/settings/profile).
-2. In the left navigation, select [Developer settings](https://github.com/settings/apps).
-3. In the left navigation, select OAuth apps.
-4. Select New OAuth App.
-    - If you haven't created an app before, you may see Register a new application instead. Select it.
-5. Enter an Application name, like n8n integration.
-6. Enter the Homepage URL for your app's website.
-7. If you'd like, add the optional Application description, which GitHub displays to end-users.
-8. From n8n, copy the OAuth Redirect URL and paste it into the GitHub Authorization callback URL.
-9. Select Register application.
-10. Copy the Client ID and Client Secret this generates and add them to your n8n credential.
+Key options:
 
-Refer to the [GitHub Authorizing OAuth apps documentation](https://docs.github.com/en/apps/oauth-apps/using-oauth-apps/authorizing-oauth-apps) for more information on the authorization process.
+- Model: dynamically loaded from your STACKIT project (non-embedding models)
+- Temperature, Top P, Penalties, Max tokens, Retries, Timeout
+- Response format: text or JSON (when using JSON mode, ensure your prompts instruct the model to return valid JSON)
+
+Typical usage:
+
+1. Add “STACKIT Chat Model” to the canvas
+2. Configure the node with your desired parameters (API-Key, Model and Options)
+3. Connect to AI nodes (e.g., AI Agent, AI Chain)
+
+## STACKIT Embeddings
+
+Use this node to generate vector embeddings from text.
+
+Key options:
+
+- Model: dynamically loaded embeddings models (intfloat/* models)
+- Dimensions: choose target dimensionality if supported
+- Batch size and timeout controls
+- Strip new lines option for cleaner inputs
+
+Typical usage:
+
+1. Add “STACKIT Embeddings” to the canvas (AI > Embeddings)
+2. Configure the node with your desired parameters (API-Key, Model and Options)
+3. Connect the output to vector stores, RAG flows, or custom logic
 
 ## Compatibility
 
-Compatible with n8n@1.60.0 or later
+Compatible with n8n@1.60.0 or later.
 
 ## Resources
 
-* [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* [GitHub API docs](https://docs.github.com/en/rest/issues)
+- Product: <https://www.stackit.de/en/product/stackit-ai-model-serving>
+- n8n Community Nodes: <https://docs.n8n.io/integrations/#community-nodes>
+- OpenAI compatibility: <https://platform.openai.com/docs/api-reference>
+- GitHub repo: <https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving>

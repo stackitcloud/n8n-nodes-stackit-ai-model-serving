@@ -1,0 +1,18 @@
+{
+	"node": "n8n-nodes-stackit-ai-model-serving",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Development", "Developer Tools"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#credentials"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#stackit-embeddings"
+			}
+		]
+	}
+}
