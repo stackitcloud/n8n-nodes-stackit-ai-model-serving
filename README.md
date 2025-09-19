@@ -27,11 +27,16 @@ These nodes use a single credential: “STACKIT AI Model Serving API”.
 What you need:
 
 - API Key from your STACKIT AI Model Serving project
-- No base URL required in n8n — the nodes are preconfigured to use STACKIT’s OpenAI-compatible endpoint
+- API URL (optional): defaults to <https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1>
+
+How it works:
+
+- Set the API Key and (optionally) API URL in the credential "STACKIT AI Model Serving API".
+- All node requests use the credential’s API URL. If not set, the default endpoint above is used.
+- The Model picker fetches from `${API_URL}/models` using your credential.
 
 Notes:
 
-- Requests are sent to: <https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1>
 - These nodes are compatible with OpenAI-style models and endpoints provided by STACKIT
 
 ## STACKIT Chat Model

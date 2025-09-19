@@ -51,7 +51,8 @@ export class StackitEmbeddings implements INodeType {
 		],
 		requestDefaults: {
 			ignoreHttpStatusErrors: true,
-			baseURL: STACKIT_API_BASE_URL,
+			// Use API URL from credentials at runtime (falls back to default via credentials config)
+			baseURL: '={{$credentials.apiUrl}}',
 		},
 		properties: [
 			{
@@ -162,8 +163,8 @@ export class StackitEmbeddings implements INodeType {
 		}
 
 		const configuration: ClientOptions = {};
-
-		configuration.baseURL = STACKIT_API_BASE_URL;
+		// Prefer user-configured API URL from credentials, fallback to default
+		configuration.baseURL = (credentials.apiUrl as string) || STACKIT_API_BASE_URL;
 
 		const embeddings = new OpenAIEmbeddings({
 			model: this.getNodeParameter('model', itemIndex, 'intfloat/e5-mistral-7b-instruct') as string,

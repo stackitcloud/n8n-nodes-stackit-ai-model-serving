@@ -24,11 +24,18 @@ export class StackitAiModelServingApi implements ICredentialType {
 			required: true,
 			default: '',
 		},
+        {
+            displayName: 'API URL',
+            name: 'apiUrl',
+            type: 'string',
+            required: false,
+            default: STACKIT_API_BASE_URL,
+        }
 	];
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: STACKIT_API_BASE_URL,
+			baseURL: '={{$credentials.apiUrl}}',
 			url: '/models',
 		},
 	};
@@ -37,7 +44,11 @@ export class StackitAiModelServingApi implements ICredentialType {
 		credentials: ICredentialDataDecryptedObject,
 		requestOptions: IHttpRequestOptions,
 	): Promise<IHttpRequestOptions> {
+		const baseURL = (credentials.apiUrl as string) || STACKIT_API_BASE_URL;
+		requestOptions.baseURL = baseURL;
+
 		requestOptions.headers = {
+			...(requestOptions.headers ?? {}),
 			Authorization: 'Bearer ' + credentials.apiKey,
 		};
 		return requestOptions;
