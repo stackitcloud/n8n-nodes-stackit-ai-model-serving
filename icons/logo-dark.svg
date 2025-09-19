@@ -1,0 +1,15 @@
+<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<style xmlns="http://www.w3.org/2000/svg">
+    path {
+        fill: #045462;
+    }
+    *[data-theme="stackit-dark"] path {
+        fill: white;
+    }
+    @media (prefers-color-scheme: dark) {
+        path { fill: white; }
+    }
+</style>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8.22089 0.304886L5.35313 13.8169H12.5225L14.0654 6.54829H30.6751L32 0.304886H8.22089Z" fill="#045462"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M19.5415 10.4464L17.9901 17.7571H1.3249L0 24H23.8346L26.7114 10.4464H19.5415Z" fill="#045462"/>
+</svg>

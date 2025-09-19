@@ -17,7 +17,7 @@ export class StackitChatModel implements INodeType {
 		displayName: 'STACKIT Chat Model',
 
 		name: 'stackitChatModel',
-		icon: { light: 'file:../../icons/logo.svg', dark: 'file:../../icons/logo.svg' },
+		icon: { light: 'file:../../icons/logo-light.svg', dark: 'file:../../icons/logo-dark.svg' },
 		group: ['transform'],
 		version: 1, 
 		description: 'Provides access to the STACKIT Chat Model API.',

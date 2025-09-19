@@ -18,7 +18,7 @@ export class StackitEmbeddings implements INodeType {
 		displayName: 'STACKIT Embeddings',
 
 		name: 'stackitEmbeddings',
-		icon: { light: 'file:../../icons/logo.svg', dark: 'file:../../icons/logo.svg' },
+		icon: { light: 'file:../../icons/logo-light.svg', dark: 'file:../../icons/logo-dark.svg' },
 		group: ['transform'],
 		version: 1, 
 		description: 'Provides access to the STACKIT Embeddings API.',
