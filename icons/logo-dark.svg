@@ -1,15 +1,13 @@
-<svg width="32" height="24" viewBox="0 0 32 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<style xmlns="http://www.w3.org/2000/svg">
-    path {
-        fill: #045462;
-    }
-    *[data-theme="stackit-dark"] path {
-        fill: white;
-    }
-    @media (prefers-color-scheme: dark) {
-        path { fill: white; }
-    }
-</style>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M8.22089 0.304886L5.35313 13.8169H12.5225L14.0654 6.54829H30.6751L32 0.304886H8.22089Z" fill="#045462"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M19.5415 10.4464L17.9901 17.7571H1.3249L0 24H23.8346L26.7114 10.4464H19.5415Z" fill="#045462"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Ebene_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 536.6 395.1">
+  <!-- Generator: Adobe Illustrator 29.2.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 116)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <polygon class="st0" points="137.8 0 89.7 225.3 209.9 225.3 235.8 104.1 514.2 104.1 536.4 0 137.8 0"/>
+  <polygon class="st0" points="327.6 169.1 301.6 291 22.2 291 0 395.1 399.5 395.1 447.8 169.1 327.6 169.1"/>
 </svg>
