@@ -7,4 +7,4 @@ This node exposes ChatCompletions-compatible large language models from STACKIT 
   <https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1>)
 - Output: AiLanguageModel (connect to Agents/Chains/Prompt nodes)
 
-See the repository root documentation for details and usage tips: <https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#stackit-chat-model>
+See the repository root documentation for details and usage tips: <https://github.com/stackitcloud/n8n-nodes-stackit-ai-model-serving#stackit-chat-model>

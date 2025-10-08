@@ -6,12 +6,12 @@
 	"resources": {
 		"credentialDocumentation": [
 			{
-				"url": "https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#credentials"
+				"url": "https://github.com/stackitcloud/n8n-nodes-stackit-ai-model-serving#credentials"
 			}
 		],
 		"primaryDocumentation": [
 			{
-				"url": "https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#stackit-embeddings"
+				"url": "https://github.com/stackitcloud/n8n-nodes-stackit-ai-model-serving#stackit-embeddings"
 			}
 		]
 	}

@@ -13,7 +13,7 @@ export class StackitAiModelServingApi implements ICredentialType {
 
 	displayName = 'Stackit AI Model Serving API';
 
-	documentationUrl = 'https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#credentials';
+	documentationUrl = 'https://github.com/stackitcloud/n8n-nodes-stackit-ai-model-serving#credentials';
 
 	properties: INodeProperties[] = [
 		{

@@ -1,3 +1,6 @@
+![Project banner](.github/images/stackit-logo-light.svg#gh-light-mode-only)
+![Project banner](.github/images/stackit-logo-dark.svg#gh-dark-mode-only)
+
 # STACKIT AI Model Serving nodes for n8n
 
 n8n community nodes that connect to STACKIT AI Model Serving’s OpenAI-compatible API. Includes:

@@ -33,7 +33,7 @@ export class StackitChatModel implements INodeType {
 			resources: {
 				primaryDocumentation: [
 					{
-						url: 'https://stackit-solutions.git.onstackit.cloud/andreas.klos/n8n-nodes-stackit-ai-model-serving#stackit-chat-model',
+						url: 'https://github.com/stackitcloud/n8n-nodes-stackit-ai-model-serving#stackit-chat-model',
 					},
 				],
 			},
