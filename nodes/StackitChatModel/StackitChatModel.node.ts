@@ -254,16 +254,70 @@ export class StackitChatModel implements INodeType {
 		// Provide a plain async function to satisfy Basic LLM Chain expectations (Runnable/function/object)
 		const llm = async (input: unknown): Promise<string> => {
 			// Normalize input into Chat messages
-			let messages: ChatMessage[];
+			let messages: ChatMessage[] = [];
+
+			// Type guards and helpers
+			const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
+			const getString = (r: Record<string, unknown>, key: string): string | undefined =>
+				typeof r[key] === 'string' ? (r[key] as string) : undefined;
+			const getArray = (r: Record<string, unknown>, key: string): unknown[] | undefined =>
+				Array.isArray(r[key]) ? (r[key] as unknown[]) : undefined;
+
+			// Helper to coerce LangChain ChatPromptValue messages to OpenAI messages
+			const coerceLcMessage = (m: unknown): ChatMessage | null => {
+				if (!isRecord(m)) return null;
+				const roleMap: Record<string, ChatMessage['role']> = {
+					human: 'user',
+					system: 'system',
+					ai: 'assistant',
+				};
+				let role: ChatMessage['role'] = 'user';
+				const directRole = getString(m, 'role');
+				const typeRole = getString(m, 'type');
+				if (directRole) role = (directRole as ChatMessage['role']) || 'user';
+				else if (typeRole) role = roleMap[typeRole] ?? 'user';
+				let content = '';
+				const directContent = getString(m, 'content');
+				if (directContent) content = directContent;
+				else {
+					const contentArr = getArray(m, 'content');
+					if (contentArr) {
+						content = contentArr
+							.map((p) => (isRecord(p) && typeof p.text === 'string' ? (p.text as string) : ''))
+							.filter((t) => t)
+							.join('\n');
+					}
+				}
+				if (!content) return null;
+				return { role, content };
+			};
+
 			if (typeof input === 'string') {
 				messages = [{ role: 'user', content: input }];
 			} else if (Array.isArray(input)) {
 				messages = input as ChatMessage[];
 			} else if (input && typeof input === 'object') {
 				const obj = input as Record<string, unknown>;
-				if (Array.isArray(obj.messages)) messages = obj.messages as ChatMessage[];
-				else if (typeof obj.input === 'string') messages = [{ role: 'user', content: obj.input }];
-				else messages = [{ role: 'user', content: JSON.stringify(obj) }];
+				// n8n AI often passes { input: string }
+				if (typeof obj.input === 'string') {
+					messages = [{ role: 'user', content: obj.input }];
+				} else if (Array.isArray(obj.messages)) {
+					messages = obj.messages as ChatMessage[];
+				} else if (isRecord(obj.kwargs) && typeof obj.kwargs.value === 'string') {
+					// LangChain StringPromptValue
+					messages = [{ role: 'user', content: obj.kwargs.value as string }];
+				} else if (isRecord(obj.kwargs) && Array.isArray(obj.kwargs.messages)) {
+					// LangChain ChatPromptValue
+					messages = (obj.kwargs.messages as unknown[])
+						.map((m) => coerceLcMessage(m))
+						.filter((m): m is ChatMessage => !!m);
+				} else if (typeof obj.value === 'string') {
+					messages = [{ role: 'user', content: obj.value }];
+				} else if (typeof obj.prompt === 'string') {
+					messages = [{ role: 'user', content: obj.prompt }];
+				} else {
+					messages = [{ role: 'user', content: JSON.stringify(obj) }];
+				}
 			} else {
 				messages = [{ role: 'user', content: '' }];
 			}
