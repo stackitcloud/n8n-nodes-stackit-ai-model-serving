@@ -1,6 +1,6 @@
 {
     "name": "@stackitcloud/n8n-nodes-stackit-ai-model-serving",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "publishConfig": { "access": "public" },
     "description": "n8n community nodes for STACKIT AI Model Serving (OpenAI-compatible Chat & Embeddings)",
     "license": "MIT",
