@@ -1,4 +1,3 @@
-import { OpenAIEmbeddings } from '@langchain/openai';
 import {
     NodeConnectionType,
     type INodeType,
@@ -6,10 +5,11 @@ import {
     type ISupplyDataFunctions,
     type SupplyData,
 } from 'n8n-workflow';
-import type { ClientOptions } from 'openai';
 
-import { STACKIT_API_BASE_URL } from '../../credentials/StackitAiModelServingApi.credentials';
 import { EmbeddingsLogWrapper } from './EmbeddingsLogWrapper';
+import { OpenAICompatibleEmbeddings } from './OpenAICompatibleEmbeddings';
+
+import { IHttpRequestOptions } from 'n8n-workflow';
 
 
 export class StackitEmbeddings implements INodeType {
@@ -146,7 +146,7 @@ export class StackitEmbeddings implements INodeType {
 	};
 
 	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
-		const credentials = await this.getCredentials('stackitAiModelServingApi');
+		await this.getCredentials('stackitAiModelServingApi');
 
 		const options = this.getNodeParameter('options', itemIndex, {}) as {
 			baseURL?: string;
@@ -162,15 +162,15 @@ export class StackitEmbeddings implements INodeType {
 			options.timeout = options.timeout * 1000;
 		}
 
-		const configuration: ClientOptions = {};
-		// Prefer user-configured API URL from credentials, fallback to default
-		configuration.baseURL = (credentials.apiUrl as string) || STACKIT_API_BASE_URL;
 
-		const embeddings = new OpenAIEmbeddings({
+
+		const embeddings = new OpenAICompatibleEmbeddings({
 			model: this.getNodeParameter('model', itemIndex, 'intfloat/e5-mistral-7b-instruct') as string,
-			apiKey: credentials.apiKey as string,
-			...options,
-			configuration,
+			batchSize: options.batchSize,
+			stripNewLines: options.stripNewLines,
+			timeout: options.timeout,
+			request: (opts: IHttpRequestOptions) =>
+				this.helpers.httpRequestWithAuthentication.call(this, 'stackitAiModelServingApi', opts),
 		});
 
 		// Prefer a log wrapper for embeddings to ensure UI logging regardless of callback propagation

@@ -1,14 +1,16 @@
-import { ChatOpenAI, type ClientOptions } from '@langchain/openai';
 import {
     NodeConnectionType,
+    NodeError,
+    NodeOperationError,
+    type IHttpRequestOptions,
     type INodeType,
     type INodeTypeDescription,
     type ISupplyDataFunctions,
+    type JsonObject,
     type SupplyData,
 } from 'n8n-workflow';
 
-import { STACKIT_API_BASE_URL } from '../../credentials/StackitAiModelServingApi.credentials';
-import { N8nLlmTracing } from './N8nLlmTracing';
+import { OpenAICompatibleChatModel, type ChatMessage } from './OpenAICompatibleChatModel';
 
 
 export class StackitChatModel implements INodeType {
@@ -215,44 +217,75 @@ export class StackitChatModel implements INodeType {
 	};
 
 	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
-		const credentials = await this.getCredentials('stackitAiModelServingApi');
-
 		const modelName = this.getNodeParameter('model', itemIndex) as string;
 
 		const options = this.getNodeParameter('options', itemIndex, {}) as {
 			frequencyPenalty?: number;
 			maxTokens?: number;
-			maxRetries: number;
-			timeout: number;
+			maxRetries?: number;
+			timeout?: number;
 			presencePenalty?: number;
 			temperature?: number;
 			topP?: number;
 			responseFormat?: 'text' | 'json_object';
 		};
 
-		const configuration: ClientOptions = {};
-		// Prefer user-configured API URL from credentials, fallback to default
-		configuration.baseURL = (credentials.apiUrl as string) || STACKIT_API_BASE_URL;
+		// Normalize timeouts: accept seconds if user provided a small number (<1000)
+		let timeout = options.timeout;
+		if (timeout === -1 as unknown as number) timeout = undefined;
+		else if (typeof timeout === 'number' && timeout > 0 && timeout < 1000) timeout = timeout * 1000;
 
-		// Extra options to send to the OpenAI compatible API, that are not directly supported by LangChain
-		const modelKwargs: {
-			response_format?: object;
-		} = {};
-		if (options.responseFormat) modelKwargs.response_format = { type: options.responseFormat };
+		const request = (opts: IHttpRequestOptions) =>
+			this.helpers.httpRequestWithAuthentication.call(this, 'stackitAiModelServingApi', opts);
 
-		const model = new ChatOpenAI({
-			apiKey: credentials.apiKey as string,
+		const model = new OpenAICompatibleChatModel({
 			model: modelName,
-			...options,
-			timeout: options.timeout ?? 60000,
+			temperature: options.temperature,
+			topP: options.topP,
+			presencePenalty: options.presencePenalty,
+			frequencyPenalty: options.frequencyPenalty,
+			maxTokens: options.maxTokens,
+			responseFormat: options.responseFormat,
 			maxRetries: options.maxRetries ?? 2,
-			configuration,
-			callbacks: [new N8nLlmTracing(this)],
-			modelKwargs,
+			timeout: timeout ?? 60000,
+			request,
 		});
 
-		return {
-			response: model,
+		// Provide a plain async function to satisfy Basic LLM Chain expectations (Runnable/function/object)
+		const llm = async (input: unknown): Promise<string> => {
+			// Normalize input into Chat messages
+			let messages: ChatMessage[];
+			if (typeof input === 'string') {
+				messages = [{ role: 'user', content: input }];
+			} else if (Array.isArray(input)) {
+				messages = input as ChatMessage[];
+			} else if (input && typeof input === 'object') {
+				const obj = input as Record<string, unknown>;
+				if (Array.isArray(obj.messages)) messages = obj.messages as ChatMessage[];
+				else if (typeof obj.input === 'string') messages = [{ role: 'user', content: obj.input }];
+				else messages = [{ role: 'user', content: JSON.stringify(obj) }];
+			} else {
+				messages = [{ role: 'user', content: '' }];
+			}
+
+			// Log to n8n UI
+			const { index } = this.addInputData(NodeConnectionType.AiLanguageModel, [[{ json: { messages } }]]);
+
+			try {
+				const { content } = await model.invoke(messages);
+				this.addOutputData(NodeConnectionType.AiLanguageModel, index, [[{ json: { response: content } }]]);
+				return content;
+			} catch (error) {
+				if (error instanceof NodeError) {
+					this.addOutputData(NodeConnectionType.AiLanguageModel, index, error);
+					throw error;
+				}
+				const wrapped = new NodeOperationError(this.getNode(), error as JsonObject);
+				this.addOutputData(NodeConnectionType.AiLanguageModel, index, wrapped);
+				throw error as Error;
+			}
 		};
+
+		return { response: llm };
 	}
 }

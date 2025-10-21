@@ -1,6 +1,6 @@
 {
     "name": "@stackitcloud/n8n-nodes-stackit-ai-model-serving",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publishConfig": {
         "access": "public"
     },
@@ -55,7 +55,5 @@
     "peerDependencies": {
         "n8n-workflow": "*"
     },
-    "dependencies": {
-        "@langchain/openai": "^0.6.12"
-    }
+    "dependencies": {}
 }
