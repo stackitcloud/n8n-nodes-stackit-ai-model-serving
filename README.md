@@ -44,7 +44,9 @@ Notes:
 
 ## STACKIT Chat Model
 
-Use this node to obtain a ChatCompletions-capable model as an AI Model output for n8n’s AI features or your own custom chains and agents. No LangChain dependency is required. The node accepts a variety of input shapes (including common LangChain-like prompt structures) and normalizes them for the API.
+Use this node to obtain a ChatCompletions-capable model as an AI Model output for n8n’s AI features, custom chains, and agents — including n8n’s **Tools Agent**.
+
+The node is powered by LangChain’s `ChatOpenAI` configured against STACKIT’s OpenAI-compatible endpoint. This means it supports `bindTools()` and full tool call response parsing, making it compatible with any n8n node that requires a chat model with tool calling support.
 
 Key options:
 
@@ -55,14 +57,14 @@ Key options:
 Typical usage:
 
 1. Add “STACKIT Chat Model” to the canvas
-2. Configure the node with your desired parameters (API-Key, Model and Options)
-3. Connect to AI nodes (e.g., AI Agent, AI Chain)
+2. Configure the node with your STACKIT credentials (API Key and API URL)
+3. Connect to AI nodes (e.g., Tools Agent, AI Chain, Basic LLM Chain)
 
 Behavior details:
 
-- Input normalization: The model function accepts strings, arrays of OpenAI-style messages, and objects like { input }, { messages }, { prompt }, as well as common LangChain prompt shapes (StringPromptValue/ChatPromptValue). These are normalized to OpenAI-compatible messages internally.
-- Error handling: Unknown errors are wrapped in n8n’s NodeOperationError so failures appear clearly readable in the UI.
-- Tracing in UI: The node uses addInputData/addOutputData so every call shows messages in and response/error out in the execution view.
+- Tool calling: The node returns a proper LangChain `BaseChatModel` instance with `bindTools()` support, enabling the Tools Agent and other tool-aware workflows.
+- Error handling: Errors are surfaced as n8n’s NodeOperationError so failures appear clearly readable in the UI.
+- LangChain dependency: The node uses `@langchain/openai` (already bundled with n8n) — no extra install required.
 
 ## STACKIT Embeddings
 
@@ -86,6 +88,21 @@ Behavior details:
 - Batch and timeouts: Inputs are batched (configurable) and timeouts accept seconds for small values (converted to ms). Newline stripping is enabled by default for cleaner inputs.
 - Error handling: Unknown errors are wrapped in NodeOperationError for readable failures in the UI.
 - Tracing in UI: The node logs inputs and outputs using addInputData/addOutputData so each request is traceable.
+
+## Local Development
+
+A `Dockerfile` and `Makefile` are included for running a local n8n instance with the STACKIT nodes pre-installed — no manual setup required.
+
+```bash
+make build    # Build the Docker image (installs n8n + links the custom node)
+make run      # Start n8n at http://localhost:5678
+make stop     # Stop and remove the container
+make restart  # Rebuild and restart
+make logs     # Stream container logs
+make clean    # Remove the container and image
+```
+
+The Docker setup builds the node from source, links it into n8n's custom extensions directory, and exposes n8n on port 5678.
 
 ## Compatibility
 

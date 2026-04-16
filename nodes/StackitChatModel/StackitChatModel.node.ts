@@ -1,16 +1,11 @@
+import { ChatOpenAI } from '@langchain/openai';
 import {
-    NodeConnectionType,
-    NodeError,
-    NodeOperationError,
-    type IHttpRequestOptions,
+    NodeConnectionTypes,
     type INodeType,
     type INodeTypeDescription,
     type ISupplyDataFunctions,
-    type JsonObject,
     type SupplyData,
 } from 'n8n-workflow';
-
-import { OpenAICompatibleChatModel, type ChatMessage } from './OpenAICompatibleChatModel';
 
 
 export class StackitChatModel implements INodeType {
@@ -43,7 +38,7 @@ export class StackitChatModel implements INodeType {
 
 		inputs: [],
 
-		outputs: [NodeConnectionType.AiLanguageModel],
+		outputs: [NodeConnectionTypes.AiLanguageModel],
 		outputNames: ['Model'],
 		credentials: [
 			{
@@ -217,6 +212,7 @@ export class StackitChatModel implements INodeType {
 	};
 
 	async supplyData(this: ISupplyDataFunctions, itemIndex: number): Promise<SupplyData> {
+		const credentials = await this.getCredentials('stackitAiModelServingApi');
 		const modelName = this.getNodeParameter('model', itemIndex) as string;
 
 		const options = this.getNodeParameter('options', itemIndex, {}) as {
@@ -235,111 +231,24 @@ export class StackitChatModel implements INodeType {
 		if (timeout === -1 as unknown as number) timeout = undefined;
 		else if (typeof timeout === 'number' && timeout > 0 && timeout < 1000) timeout = timeout * 1000;
 
-		const request = (opts: IHttpRequestOptions) =>
-			this.helpers.httpRequestWithAuthentication.call(this, 'stackitAiModelServingApi', opts);
-
-		const model = new OpenAICompatibleChatModel({
+		const model = new ChatOpenAI({
 			model: modelName,
 			temperature: options.temperature,
 			topP: options.topP,
 			presencePenalty: options.presencePenalty,
 			frequencyPenalty: options.frequencyPenalty,
-			maxTokens: options.maxTokens,
-			responseFormat: options.responseFormat,
+			maxTokens: options.maxTokens === -1 ? undefined : options.maxTokens,
 			maxRetries: options.maxRetries ?? 2,
 			timeout: timeout ?? 60000,
-			request,
+			modelKwargs: options.responseFormat === 'json_object'
+				? { response_format: { type: 'json_object' } }
+				: undefined,
+			configuration: {
+				baseURL: credentials.apiUrl as string,
+				apiKey: credentials.apiKey as string,
+			},
 		});
 
-		// Provide a plain async function to satisfy Basic LLM Chain expectations (Runnable/function/object)
-		const llm = async (input: unknown): Promise<string> => {
-			// Normalize input into Chat messages
-			let messages: ChatMessage[] = [];
-
-			// Type guards and helpers
-			const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
-			const getString = (r: Record<string, unknown>, key: string): string | undefined =>
-				typeof r[key] === 'string' ? (r[key] as string) : undefined;
-			const getArray = (r: Record<string, unknown>, key: string): unknown[] | undefined =>
-				Array.isArray(r[key]) ? (r[key] as unknown[]) : undefined;
-
-			// Helper to coerce LangChain ChatPromptValue messages to OpenAI messages
-			const coerceLcMessage = (m: unknown): ChatMessage | null => {
-				if (!isRecord(m)) return null;
-				const roleMap: Record<string, ChatMessage['role']> = {
-					human: 'user',
-					system: 'system',
-					ai: 'assistant',
-				};
-				let role: ChatMessage['role'] = 'user';
-				const directRole = getString(m, 'role');
-				const typeRole = getString(m, 'type');
-				if (directRole) role = (directRole as ChatMessage['role']) || 'user';
-				else if (typeRole) role = roleMap[typeRole] ?? 'user';
-				let content = '';
-				const directContent = getString(m, 'content');
-				if (directContent) content = directContent;
-				else {
-					const contentArr = getArray(m, 'content');
-					if (contentArr) {
-						content = contentArr
-							.map((p) => (isRecord(p) && typeof p.text === 'string' ? (p.text as string) : ''))
-							.filter((t) => t)
-							.join('\n');
-					}
-				}
-				if (!content) return null;
-				return { role, content };
-			};
-
-			if (typeof input === 'string') {
-				messages = [{ role: 'user', content: input }];
-			} else if (Array.isArray(input)) {
-				messages = input as ChatMessage[];
-			} else if (input && typeof input === 'object') {
-				const obj = input as Record<string, unknown>;
-				// n8n AI often passes { input: string }
-				if (typeof obj.input === 'string') {
-					messages = [{ role: 'user', content: obj.input }];
-				} else if (Array.isArray(obj.messages)) {
-					messages = obj.messages as ChatMessage[];
-				} else if (isRecord(obj.kwargs) && typeof obj.kwargs.value === 'string') {
-					// LangChain StringPromptValue
-					messages = [{ role: 'user', content: obj.kwargs.value as string }];
-				} else if (isRecord(obj.kwargs) && Array.isArray(obj.kwargs.messages)) {
-					// LangChain ChatPromptValue
-					messages = (obj.kwargs.messages as unknown[])
-						.map((m) => coerceLcMessage(m))
-						.filter((m): m is ChatMessage => !!m);
-				} else if (typeof obj.value === 'string') {
-					messages = [{ role: 'user', content: obj.value }];
-				} else if (typeof obj.prompt === 'string') {
-					messages = [{ role: 'user', content: obj.prompt }];
-				} else {
-					messages = [{ role: 'user', content: JSON.stringify(obj) }];
-				}
-			} else {
-				messages = [{ role: 'user', content: '' }];
-			}
-
-			// Log to n8n UI
-			const { index } = this.addInputData(NodeConnectionType.AiLanguageModel, [[{ json: { messages } }]]);
-
-			try {
-				const { content } = await model.invoke(messages);
-				this.addOutputData(NodeConnectionType.AiLanguageModel, index, [[{ json: { response: content } }]]);
-				return content;
-			} catch (error) {
-				if (error instanceof NodeError) {
-					this.addOutputData(NodeConnectionType.AiLanguageModel, index, error);
-					throw error;
-				}
-				const wrapped = new NodeOperationError(this.getNode(), error as JsonObject);
-				this.addOutputData(NodeConnectionType.AiLanguageModel, index, wrapped);
-				throw error as Error;
-			}
-		};
-
-		return { response: llm };
+		return { response: model };
 	}
 }

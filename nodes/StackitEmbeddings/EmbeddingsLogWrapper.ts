@@ -1,5 +1,5 @@
-import type { IDataObject, ISupplyDataFunctions, JsonObject } from 'n8n-workflow';
-import { NodeConnectionType, NodeError, NodeOperationError } from 'n8n-workflow';
+import type { IDataObject, ISupplyDataFunctions, JsonObject, NodeConnectionType } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeError, NodeOperationError } from 'n8n-workflow';
 
 // Minimal interface for LangChain embeddings we care about
 export interface EmbeddingsLike {
@@ -12,7 +12,7 @@ export class EmbeddingsLogWrapper implements EmbeddingsLike {
   constructor(
     private inner: EmbeddingsLike,
     private executionFunctions: ISupplyDataFunctions,
-    private connectionType: NodeConnectionType = NodeConnectionType.AiEmbedding,
+    private connectionType: NodeConnectionType = NodeConnectionTypes.AiEmbedding,
   ) {}
 
   async embedDocuments(documents: string[], options?: unknown): Promise<number[][]> {

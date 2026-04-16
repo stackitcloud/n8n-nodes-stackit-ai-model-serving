@@ -1,5 +1,5 @@
 import {
-    NodeConnectionType,
+    NodeConnectionTypes,
     type INodeType,
     type INodeTypeDescription,
     type ISupplyDataFunctions,
@@ -41,7 +41,7 @@ export class StackitEmbeddings implements INodeType {
 
 		inputs: [],
 
-		outputs: [NodeConnectionType.AiEmbedding],
+		outputs: [NodeConnectionTypes.AiEmbedding],
 		outputNames: ['Embeddings'],
 		credentials: [
 			{
@@ -174,7 +174,7 @@ export class StackitEmbeddings implements INodeType {
 		});
 
 		// Prefer a log wrapper for embeddings to ensure UI logging regardless of callback propagation
-		const wrapped = new EmbeddingsLogWrapper(embeddings, this, NodeConnectionType.AiEmbedding);
+		const wrapped = new EmbeddingsLogWrapper(embeddings, this, NodeConnectionTypes.AiEmbedding);
 
 		return {
 			response: wrapped,

@@ -46,14 +46,16 @@
         ]
     },
     "devDependencies": {
+        "@langchain/openai": "^1.4.4",
         "@n8n/node-cli": "*",
         "eslint": "9.32.0",
+        "n8n-workflow": "^2.13.1",
         "prettier": "3.6.2",
         "release-it": "^19.0.4",
-        "typescript": "5.9.2"
+        "typescript": "^5.9.2"
     },
     "peerDependencies": {
-        "n8n-workflow": "*"
-    },
-    "dependencies": {}
+        "@langchain/openai": "*",
+        "n8n-workflow": ">=2.0.0"
+    }
 }
